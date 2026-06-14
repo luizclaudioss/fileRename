@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Arquivos Inteligente</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-surface: rgba(17, 24, 39, 0.7);
+            --border-glow: rgba(99, 102, 241, 0.15);
+            --accent-primary: #6366f1;
+            --accent-primary-glow: rgba(99, 102, 241, 0.4);
+            --accent-success: #10b981;
+            --accent-success-glow: rgba(16, 185, 129, 0.4);
+            --accent-error: #f43f5e;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphism styles */
+        .glass-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        header {
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .logo h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a5b4fc 0%, var(--accent-primary) 50%, #34d399 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .main-container {
+            padding: 2rem 4rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* Sidebar settings */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-widget {
+            padding: 1.5rem;
+        }
+
+        .widget-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-control:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary-glow);
+        }
+
+        /* Buttons & Actions */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #4f46e5 100%);
+            color: white;
+            box-shadow: 0 4px 14px 0 var(--accent-primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 var(--accent-primary-glow);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-success) 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 14px 0 var(--accent-success-glow);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 var(--accent-success-glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main File List area */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-card {
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* File List Table */
+        .table-card {
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            padding-left: 2.5rem;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            max-height: 550px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        td {
+            padding: 1rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: rgba(99, 102, 241, 0.1);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .badge-processing {
+            background: rgba(245, 158, 11, 0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-error {
+            background: rgba(244, 63, 94, 0.1);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+
+        .file-path {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        /* Micro-animations */
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Naming options style */
+        .naming-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .naming-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .naming-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateX(4px);
+        }
+
+        .naming-card.active {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15);
+        }
+
+        .naming-card-icon {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.04);
+            transition: all 0.25s ease;
+        }
+
+        .naming-card.active .naming-card-icon {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+        }
+
+        .naming-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .naming-card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .naming-card-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Modern Scrollbar */
+        .table-scroll::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .table-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.4);
+        }
+
+        /* Fade-in for table rows */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        tr.file-row {
+            opacity: 0;
+            animation: fadeInUp 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="glass-card">
+        <div class="logo">
+            <h1><i class="fa-solid fa-folder-open"></i> Organizador de Arquivos</h1>
+        </div>
+        <div>
+            <span class="badge badge-success">
+                <i class="fa-solid fa-server"></i> API Local Ativa
+            </span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="dashboard-grid">
+            
+            <!-- Sidebar Widgets -->
+            <div class="sidebar">
+                
+                <!-- Folder selector Panel -->
+                <div class="sidebar-widget glass-card">
+                    <div class="widget-title">
+                        <i class="fa-solid fa-folder-tree"></i> Selecionar Diretório
+                    </div>
+                    <button class="btn btn-primary" id="btn-choose-dir" style="margin-bottom: 1rem;">
+                        <i class="fa-solid fa-folder-open"></i> Escolher Pasta
+                    </button>
+                    <div class="input-group">
+                        <label for="dir-path">Caminho Selecionado</label>
+                        <input type="text" id="dir-path" class="input-control" value="." placeholder="Nenhuma pasta selecionada...">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label style="margin-bottom: 0.6rem; display: block; font-weight: 500;">Modo de Nomenclatura</label>
+                        <div class="naming-options">
+                            <div class="naming-card active" data-value="content">
+                                <div class="naming-card-icon"><i class="fa-solid fa-brain"></i></div>
+                                <div class="naming-card-info">
+                                    <span class="naming-card-title">Título Inteligente</span>
+                                    <span class="naming-card-desc">Lê conteúdo de PDF/Word</span>
+                                </div>
+                            </div>
+                            <div class="naming-card" data-value="clean">
+                                <div class="naming-card-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <div class="naming-card-info">
+                                    <span class="naming-card-title">Nome Limpo</span>
+                                    <span class="naming-card-desc">Corrige traços/maiúsculas</span>
+                                </div>
+                            </div>
+                            <div class="naming-card" data-value="number_name">
+                                <div class="naming-card-icon"><i class="fa-solid fa-folder-tree"></i></div>
+                                <div class="naming-card-info">
+                                    <span class="naming-card-title">Numérico Estruturado</span>
+                                    <span class="naming-card-desc">Prefixo numérico + Nome</span>
+                                </div>
+                            </div>
+                            <div class="naming-card" data-value="number_only">
+                                <div class="naming-card-icon"><i class="fa-solid fa-list-ol"></i></div>
+                                <div class="naming-card-info">
+                                    <span class="naming-card-title">Apenas Números</span>
+                                    <span class="naming-card-desc">Numeração de pastas puras</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="rename-mode" value="content">
+                    </div>
+                    
+                    <!-- Ajustes Adicionais -->
+                    <div class="input-group" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem;">
+                        <label style="font-weight: 500; display: block; margin-bottom: 0.2rem;">Ajustes Adicionais</label>
+                        <label style="display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; cursor: pointer; color: var(--text-muted); user-select: none;">
+                            <input type="checkbox" id="chk-remove-spaces" style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent-primary);">
+                            Remover espaços em branco
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; cursor: pointer; color: var(--text-muted); user-select: none;">
+                            <input type="checkbox" id="chk-camel-case" style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent-primary);">
+                            Formato camelCase
+                        </label>
+                    </div>
+
+                    <button class="btn btn-success" id="btn-scan">
+                        <i class="fa-solid fa-magnifying-glass"></i> Analisar Pasta
+                    </button>
+                </div>
+
+                <!-- Instructions Widget -->
+                <div class="sidebar-widget glass-card">
+                    <div class="widget-title">
+                        <i class="fa-solid fa-circle-info"></i> Como usar
+                    </div>
+                    <div style="font-size: 0.8rem; line-height: 1.5; color: var(--text-muted);">
+                        <p style="margin-bottom: 0.5rem;">1. Insira o caminho do diretório (use <code>.</code> para a pasta atual do script).</p>
+                        <p style="margin-bottom: 0.5rem;">2. Clique em <strong>Analisar Pasta</strong> para ler os arquivos e propor nomes baseados em metadados/conteúdos.</p>
+                        <p style="margin-bottom: 0.5rem;">3. Se necessário, edite os nomes propostos diretamente na tabela de visualização prévia.</p>
+                        <p>4. Clique em <strong>Renomear Tudo</strong> para aplicar as mudanças físicas no seu disco rígido.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Main Workspace -->
+            <div class="main-content">
+                
+                <!-- Stats Bar -->
+                <div class="stats-bar">
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon" style="color: var(--accent-primary);"><i class="fa-solid fa-file"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total">0</span>
+                            <span class="stat-label">Arquivos</span>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon" style="color: #fbbf24;"><i class="fa-solid fa-signature"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-pending">0</span>
+                            <span class="stat-label">Prontos</span>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon" style="color: var(--accent-success);"><i class="fa-solid fa-check-double"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-success">0</span>
+                            <span class="stat-label">Renomeados</span>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon" style="color: var(--accent-error);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-error">0</span>
+                            <span class="stat-label">Erros</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Preview -->
+                <div class="table-card glass-card">
+                    <div class="table-actions" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; width: 100%; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                            <div class="search-wrapper" style="flex: 1;">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="search" class="input-control search-input" placeholder="Filtrar arquivos...">
+                            </div>
+                            <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--text-muted); user-select: none;">
+                                <input type="checkbox" id="search-content" style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent-primary);">
+                                Buscar no conteúdo (PDF/Word)
+                            </label>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; width: 100%; gap: 0.75rem;">
+                            <button class="btn btn-outline" id="btn-clear" style="width: auto;">
+                                <i class="fa-solid fa-xmark"></i> Limpar
+                            </button>
+                            <button class="btn btn-outline" id="btn-undo" style="width: auto; border-color: rgba(244, 63, 94, 0.3); color: #fb7185;">
+                                <i class="fa-solid fa-rotate-left"></i> Desfazer
+                            </button>
+                            <button class="btn btn-success" id="btn-rename-all" style="width: auto;" disabled>
+                                <i class="fa-solid fa-play"></i> Renomear Tudo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">Tipo</th>
+                                    <th>Caminho & Nome Original / Sugerido</th>
+                                    <th style="width: 150px;">Status</th>
+                                    <th style="width: 120px;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="file-list-body">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                                        Nenhum diretório analisado. Digite o caminho no painel esquerdo e clique em "Analisar Pasta".
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast glass-card">
+        <i id="toast-icon" class="fa-solid fa-info-circle"></i>
+        <span id="toast-msg">Mensagem padrão</span>
+    </div>
+
+    <script>
+        let filesList = []; // local files array
+        let currentPath = '';
+
+        // UI references
+        const btnScan = document.getElementById('btn-scan');
+        const btnRenameAll = document.getElementById('btn-rename-all');
+        const btnClear = document.getElementById('btn-clear');
+        const fileListBody = document.getElementById('file-list-body');
+        const searchInput = document.getElementById('search');
+        const dirPathInput = document.getElementById('dir-path');
+
+        // Stats references
+        const statTotal = document.getElementById('stat-total');
+        const statPending = document.getElementById('stat-pending');
+        const statSuccess = document.getElementById('stat-success');
+        const statError = document.getElementById('stat-error');
+
+        // Helper to show toasts
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const msgSpan = document.getElementById('toast-msg');
+            const icon = document.getElementById('toast-icon');
+
+            msgSpan.textContent = message;
+            toast.className = 'toast glass-card show';
+
+            if (type === 'success') {
+                toast.style.borderLeft = '4px solid var(--accent-success)';
+                icon.className = 'fa-solid fa-circle-check';
+                icon.style.color = 'var(--accent-success)';
+            } else if (type === 'error') {
+                toast.style.borderLeft = '4px solid var(--accent-error)';
+                icon.className = 'fa-solid fa-triangle-exclamation';
+                icon.style.color = 'var(--accent-error)';
+            } else {
+                toast.style.borderLeft = '4px solid var(--accent-primary)';
+                icon.className = 'fa-solid fa-info-circle';
+                icon.style.color = 'var(--accent-primary)';
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        const btnChooseDir = document.getElementById('btn-choose-dir');
+
+        btnChooseDir.addEventListener('click', async () => {
+            showToast('Abri o seletor nativo do sistema. Escolha a pasta...', 'info');
+            try {
+                const response = await fetch('/api/select_folder');
+                if (!response.ok) {
+                    throw new Error('Falha ao abrir o seletor de pastas.');
+                }
+                const data = await response.json();
+                if (data.path) {
+                    dirPathInput.value = data.path;
+                    showToast('Pasta selecionada com sucesso!', 'success');
+                    btnScan.click(); // Dispara varredura automática
+                } else {
+                    showToast('Nenhuma pasta foi selecionada.', 'info');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao selecionar pasta: ' + err.message, 'error');
+            }
+        });
+
+        // Naming mode card selectors
+        const namingCards = document.querySelectorAll('.naming-card');
+        const renameModeInput = document.getElementById('rename-mode');
+
+        namingCards.forEach(card => {
+            card.addEventListener('click', () => {
+                namingCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                renameModeInput.value = card.getAttribute('data-value');
+                if (dirPathInput.value.trim()) {
+                    btnScan.click();
+                }
+            });
+        });
+
+        // Auto-scan on adjusting options
+        document.getElementById('chk-remove-spaces').addEventListener('change', () => {
+            if (dirPathInput.value.trim()) {
+                btnScan.click();
+            }
+        });
+
+        document.getElementById('chk-camel-case').addEventListener('change', () => {
+            if (dirPathInput.value.trim()) {
+                btnScan.click();
+            }
+        });
+
+        // Folder selection & Scanning via API Backend
+        btnScan.addEventListener('click', async () => {
+            const pathValue = dirPathInput.value.trim();
+            const modeValue = document.getElementById('rename-mode').value;
+            const isContentSearch = document.getElementById('search-content').checked;
+            const queryValue = isContentSearch ? searchInput.value.trim() : '';
+            const removeSpaces = document.getElementById('chk-remove-spaces').checked;
+            const camelCase = document.getElementById('chk-camel-case').checked;
+            
+            showToast('Analisando diretório local...', 'info');
+            
+            fileListBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                        <i class="fa-solid fa-spinner spin" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i><br>
+                        O servidor local está extraindo títulos e analisando arquivos no disco rígido...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const response = await fetch(`/api/scan?path=${encodeURIComponent(pathValue)}&mode=${modeValue}&q=${encodeURIComponent(queryValue)}&remove_spaces=${removeSpaces}&camel_case=${camelCase}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao carregar o diretório.');
+                }
+                
+                const data = await response.json();
+                filesList = data.files;
+                currentPath = data.resolvedPath;
+
+                if (filesList.length === 0) {
+                    fileListBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                                Nenhum arquivo elegível encontrado neste diretório.
+                            </td>
+                        </tr>
+                    `;
+                    btnRenameAll.disabled = true;
+                    updateStats();
+                    return;
+                }
+
+                renderTable();
+                updateStats();
+                btnRenameAll.disabled = !filesList.some(f => f.status === 'ready');
+                showToast(`Análise concluída com sucesso! ${filesList.length} arquivos mapeados.`, 'success');
+
+            } catch (err) {
+                console.error(err);
+                fileListBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--accent-error); padding: 3rem;">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i><br>
+                            Erro ao ler pasta: ${err.message}
+                        </td>
+                    </tr>
+                `;
+                showToast(err.message, 'error');
+            }
+        });
+
+        // Render table
+        function renderTable() {
+            const filter = searchInput.value.toLowerCase();
+            const filtered = filesList.filter(f => 
+                f.originalName.toLowerCase().includes(filter) || 
+                f.newName.toLowerCase().includes(filter)
+            );
+            
+            if (filtered.length === 0) {
+                fileListBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                            Nenhum arquivo corresponde ao filtro.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            fileListBody.innerHTML = filtered.map((f, index) => {
+                let statusHtml = '';
+                if (f.status === 'ready') {
+                    statusHtml = `<span class="badge badge-pending" style="background: rgba(99,102,241,0.15); color: #818cf8;"><i class="fa-solid fa-circle-exclamation"></i> Pronto para alterar</span>`;
+                } else if (f.status === 'success') {
+                    statusHtml = `<span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Concluído</span>`;
+                } else if (f.status === 'error') {
+                    statusHtml = `<span class="badge badge-error" title="${f.errorMsg || 'Erro desconhecido'}"><i class="fa-solid fa-circle-xmark"></i> Erro</span>`;
+                }
+
+                let iconHtml = '<i class="fa-solid fa-file-lines" style="color: #6b7280;"></i>';
+                const lowerName = f.originalName.toLowerCase();
+                if (lowerName.endsWith('.pdf')) iconHtml = '<i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>';
+                else if (lowerName.endsWith('.docx') || lowerName.endsWith('.doc')) iconHtml = '<i class="fa-solid fa-file-word" style="color: #3b82f6;"></i>';
+                else if (/\.(png|jpg|jpeg|gif|webp)$/.test(lowerName)) iconHtml = '<i class="fa-solid fa-file-image" style="color: #10b981;"></i>';
+                else if (/\.(mp3|wav|ogg)$/.test(lowerName)) iconHtml = '<i class="fa-solid fa-file-audio" style="color: #8b5cf6;"></i>';
+                else if (/\.(mp4|mkv|avi)$/.test(lowerName)) iconHtml = '<i class="fa-solid fa-file-video" style="color: #ec4899;"></i>';
+
+                const pathEscaped = f.absolutePath.replace(/\\/g, '\\\\');
+                const actionBtnHtml = f.status === 'ready' 
+                    ? `<button class="btn btn-success" onclick="renomearIndividual('${pathEscaped}')" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; width: auto;"><i class="fa-solid fa-check"></i> Renomear</button>`
+                    : `<button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; width: auto; opacity: 0.5; cursor: not-allowed;" disabled><i class="fa-solid fa-check"></i> Renomear</button>`;
+
+                return `
+                    <tr class="file-row" style="animation-delay: ${index * 0.03}s;">
+                        <td style="text-align: center; font-size: 1.25rem;">${iconHtml}</td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                <div>
+                                    <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">${f.originalName}</span>
+                                    <span class="file-path" style="margin-top: 0.1rem;">${f.relativePath}</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem;">
+                                    <span style="font-size: 0.75rem; color: var(--accent-primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; min-width: 70px;">Sugestão:</span>
+                                    <input type="text" class="input-control" value="${f.newName}" 
+                                           style="padding: 0.4rem 0.75rem; font-size: 0.85rem; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.15); flex: 1; max-width: 700px;" 
+                                           onchange="updateFileName('${pathEscaped}', this.value)">
+                                </div>
+                            </div>
+                        </td>
+                        <td>${statusHtml}</td>
+                        <td>${actionBtnHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.updateFileName = (absolutePath, value) => {
+            const file = filesList.find(f => f.absolutePath === absolutePath);
+            if (file) {
+                file.newName = value;
+                if (file.newName === file.originalName) {
+                    file.status = 'success';
+                } else {
+                    file.status = 'ready';
+                }
+                renderTable();
+                updateStats();
+                btnRenameAll.disabled = !filesList.some(f => f.status === 'ready');
+            }
+        };
+
+        window.renomearIndividual = async (absolutePath) => {
+            const file = filesList.find(f => f.absolutePath === absolutePath);
+            if (!file || file.status !== 'ready') return;
+            
+            showToast(`Renomeando arquivo individual...`, 'info');
+            
+            try {
+                const response = await fetch('/api/rename', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        path: currentPath,
+                        changes: [file]
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Falha ao renomear na API.');
+                }
+                
+                const data = await response.json();
+                const res = data.results[0];
+                
+                if (res) {
+                    if (res.status === 'success') {
+                        file.status = 'success';
+                        file.originalName = res.newName;
+                        showToast('Renomeado com sucesso!', 'success');
+                    } else {
+                        file.status = 'error';
+                        file.errorMsg = res.errorMsg;
+                        showToast(res.errorMsg, 'error');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                file.status = 'error';
+                file.errorMsg = err.message;
+                showToast(err.message, 'error');
+            }
+            
+            renderTable();
+            updateStats();
+            btnRenameAll.disabled = !filesList.some(f => f.status === 'ready');
+        };
+
+        // Stats counter
+        function updateStats() {
+            statTotal.textContent = filesList.length;
+            statPending.textContent = filesList.filter(f => f.status === 'ready').length;
+            statSuccess.textContent = filesList.filter(f => f.status === 'success').length;
+            statError.textContent = filesList.filter(f => f.status === 'error').length;
+        }
+
+        // Search filter
+        searchInput.addEventListener('input', renderTable);
+
+        // Clear button
+        btnClear.addEventListener('click', () => {
+            filesList = [];
+            currentPath = '';
+            updateStats();
+            fileListBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                        Nenhum diretório analisado. Digite o caminho no painel esquerdo e clique em "Analisar Pasta".
+                    </td>
+                </tr>
+            `;
+            btnRenameAll.disabled = true;
+            showToast('Mesa de trabalho limpa!', 'info');
+        });
+
+        // Run renaming in lot via POST API
+        btnRenameAll.addEventListener('click', async () => {
+            btnRenameAll.disabled = true;
+            showToast('Renomeando arquivos fisicamente no disco...', 'info');
+
+            const changes = filesList.filter(f => f.status === 'ready');
+
+            try {
+                const response = await fetch('/api/rename', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: jsonStr = JSON.stringify({
+                        path: currentPath,
+                        changes: changes
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro na comunicação com a API local.');
+                }
+
+                const data = await response.json();
+                
+                // Mapear os resultados de volta para a lista
+                data.results.forEach(res => {
+                    const file = filesList.find(f => f.absolutePath === res.absolutePath);
+                    if (file) {
+                        if (res.status === 'success') {
+                            file.status = 'success';
+                            file.originalName = res.newName;
+                        } else {
+                            file.status = 'error';
+                            file.errorMsg = res.errorMsg;
+                        }
+                    }
+                });
+
+                renderTable();
+                updateStats();
+                
+                const errors = data.results.filter(r => r.status === 'error');
+                if (errors.length > 0) {
+                    showToast(`Concluído com ${errors.length} erro(s).`, 'error');
+                } else {
+                    showToast('Todos os arquivos foram renomeados com sucesso!', 'success');
+                }
+
+            } catch (err) {
+                console.error(err);
+                showToast('Falha crítica na renomeação: ' + err.message, 'error');
+            }
+
+            btnRenameAll.disabled = !filesList.some(f => f.status === 'ready');
+        });
+
+        // Event listener for Undo button
+        const btnUndo = document.getElementById('btn-undo');
+        btnUndo.addEventListener('click', async () => {
+            showToast('Desfazendo último lote de renomeações...', 'info');
+            try {
+                const response = await fetch('/api/undo', { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error('Erro ao comunicar com a API local ao desfazer.');
+                }
+                const data = await response.json();
+                if (data.status === 'empty') {
+                    showToast('Nenhum lote recente no histórico para desfazer.', 'info');
+                } else if (data.status === 'done') {
+                    const successCount = data.results.filter(r => r.status === 'success').length;
+                    const errorCount = data.results.filter(r => r.status === 'error').length;
+                    if (errorCount > 0) {
+                        showToast(`Desfeito parcial: ${successCount} restaurado(s), ${errorCount} falhou(aram).`, 'error');
+                    } else {
+                        showToast(`Desfeito com sucesso! ${successCount} arquivo(s) restaurado(s).`, 'success');
+                    }
+                    // Re-scan directory to refresh view
+                    btnScan.click();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao desfazer: ' + err.message, 'error');
+            }
+        });
+
+        // Trigger scan on Enter when content search checkbox is checked
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const isContentSearch = document.getElementById('search-content').checked;
+                if (isContentSearch) {
+                    btnScan.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

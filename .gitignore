@@ -1,0 +1,24 @@
+# Arquivos temporários do macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Caches do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Pastas geradas pelo PyInstaller (compilação)
+build/
+dist/
+
+# Arquivos de dados locais / temporários
+portuguese_words.txt
+Unisuam.pdf
